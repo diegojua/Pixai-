@@ -1,0 +1,5 @@
+{
+  "name": "Pixai",
+  "description": "Um aplicativo para usuários editarem imagens usando prompts de texto com o modelo Gemini 2.5 Flash Image. Carregue uma imagem, forneça uma instrução de edição e gere uma nova versão.",
+  "requestFramePermissions": []
+}
