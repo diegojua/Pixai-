@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
+// Configuração manual do Firebase para garantir funcionamento em hospedagens como Cloudflare/Netlify
 const firebaseConfig = {
   apiKey: "AIzaSyCXUCGaP3M0j3cPVlrSVFcz57ylHV3afvU",
   authDomain: "pixai-app-d8041.firebaseapp.com",

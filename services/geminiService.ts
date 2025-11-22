@@ -1,199 +1,133 @@
-import { GoogleGenAI, Schema, Type } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
-if (!process.env.API_KEY) {
-    console.error("A variável de ambiente API_KEY não está definida. O aplicativo não funcionará.");
-}
+// Initialize the client with the API key from the environment variable
+// process.env.API_KEY is polyfilled by Vite
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });
-
-interface ImagePart {
-  inlineData: {
-    data: string;
-    mimeType: string;
-  };
-}
+// Helper to strip "data:image/xyz;base64," prefix if present
+const cleanBase64 = (base64Str: string) => {
+    // Regex to match data URI scheme
+    const base64Pattern = /^data:image\/(png|jpeg|jpg|webp|heic|heif);base64,/;
+    if (base64Pattern.test(base64Str)) {
+        return base64Str.replace(base64Pattern, '');
+    }
+    return base64Str;
+};
 
 export const editImage = async (
   base64ImageData: string,
   mimeType: string,
   prompt: string,
   isMasking: boolean = false
-): Promise<{ data: string; mimeType: string }> => {
+): Promise<string> => {
   try {
-    const imagePart: ImagePart = {
-      inlineData: {
-        data: base64ImageData,
-        mimeType: mimeType,
-      },
-    };
+    const cleanData = cleanBase64(base64ImageData);
+    
+    // Using gemini-2.5-flash-image as requested for image tasks
+    const model = 'gemini-2.5-flash-image';
 
-    let enhancedPrompt = '';
-
-    if (isMasking) {
-        // Specialized prompt for Object Removal / Inpainting
-        // Changed strategy: Using RED mask and simplified "Replace" instruction
-        enhancedPrompt = `
-          OPERATION: INPAINTING / OBJECT REMOVAL
-          
-          INPUT IMAGE CONTAINS:
-          A specific area marked with a PURE RED MASK (#FF0000).
-          
-          YOUR GOAL:
-          Remove the object covered by the red mask and reconstruct the background.
-          
-          STEPS:
-          1. Identify the red pixels (#FF0000).
-          2. Completely remove the content under the red pixels.
-          3. Fill the gap using the surrounding texture, lighting, and patterns (Inpainting).
-          4. The final image must NOT have any red marks. It must look seamless.
-          
-          CONTEXT: ${prompt || "Remove the marked object and fill with background."}
-        `;
-    } else {
-        // Standard Editing Prompt
-        enhancedPrompt = `
-          Task: Edit the provided image based on the following instruction.
-          Instruction: ${prompt}
-          
-          Constraints:
-          1. Maintain the original aspect ratio.
-          2. Keep the composition and unedited areas as faithful to the original as possible.
-          3. High quality, photorealistic output.
-        `;
-    }
-
-    const textPart = {
-      text: enhancedPrompt,
+    let contents: any = {
+        parts: [
+            {
+                inlineData: {
+                    data: cleanData,
+                    mimeType: mimeType,
+                },
+            },
+            {
+                text: isMasking 
+                    ? `Edit this image. Identify the area marked with red color. Remove the object or defect in that red area and fill it in seamlessly with the surrounding background texture and lighting. ${prompt}`
+                    : `Edit this image. ${prompt}`
+            }
+        ]
     };
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [imagePart, textPart],
-      },
-      config: {
-        // Lower temperature for inpainting creates more stable background extensions
-        temperature: isMasking ? 0.3 : 0.4, 
-      }
-    });
-    
-    // Check for safety blocks or empty responses
-    if (response.candidates && response.candidates.length > 0) {
-        const candidate = response.candidates[0];
-        
-        if (candidate.finishReason !== 'STOP') {
-             if (candidate.finishReason === 'SAFETY') {
-                 throw new Error("A edição foi bloqueada pelos filtros de segurança da IA. Tente uma área menor ou diferente.");
-             }
-             console.warn("Generation finished with reason:", candidate.finishReason);
+        model,
+        contents,
+        config: {
+            responseMimeType: 'image/png' // Request PNG output
         }
+    });
 
-        for (const part of candidate.content?.parts || []) {
+    // Iterate through parts to find the image
+    const parts = response.candidates?.[0]?.content?.parts;
+    if (parts) {
+        for (const part of parts) {
             if (part.inlineData) {
-                return {
-                    data: part.inlineData.data,
-                    mimeType: part.inlineData.mimeType || 'image/png'
-                };
+                const responseMime = part.inlineData.mimeType || 'image/png';
+                return `data:${responseMime};base64,${part.inlineData.data}`;
             }
         }
     }
 
-    throw new Error("A IA não retornou uma imagem. Tente reformular seu pedido.");
+    throw new Error("No image generated in response");
 
   } catch (error) {
-    console.error("Erro ao editar imagem com a API Gemini:", error);
-    if (error instanceof Error) {
-        if (error.message.includes("400")) return Promise.reject(new Error("Erro na requisição (400). Verifique se a imagem é válida."));
-        if (error.message.includes("500")) return Promise.reject(new Error("Erro no servidor da IA (500). Tente novamente em instantes."));
-        
-        throw error;
-    }
-    throw new Error("Ocorreu um erro desconhecido ao gerar a imagem.");
+    console.error("Gemini API Error:", error);
+    throw error;
   }
 };
 
 export interface MarketingCopyResult {
-    short: string;
-    engagement: string;
-    sales: string;
-    colorPalette: string[];
-    emojiSuggestions: string[];
+  short: string;
+  engagement: string;
+  sales: string;
+  colorPalette: string[];
+  emojiSuggestions: string[];
 }
 
 export const generateMarketingCopy = async (
     base64ImageData: string,
     mimeType: string,
     context: string,
-    targetAudience?: string
+    targetAudience: string
 ): Promise<MarketingCopyResult> => {
+    const cleanData = cleanBase64(base64ImageData);
+    
     try {
-        const imagePart: ImagePart = {
-            inlineData: {
-                data: base64ImageData,
-                mimeType: mimeType,
-            },
-        };
-
-        const prompt = `
-            Atue como um especialista em Marketing Digital, Design e Copywriting.
-            Analise esta imagem de produto visualmente.
-            
-            O contexto da imagem/estilo solicitado pelo usuário foi: "${context}".
-            ${targetAudience ? `Público-alvo específico: "${targetAudience}". Adapte o tom e a linguagem para este grupo.` : ''}
-            
-            Tarefas:
-            1. Identifique as cores dominantes na imagem e retorne 5 códigos HEX precisos.
-            2. Sugira 5-8 emojis que combinem especificamente com as cores detectadas e a vibe da imagem.
-            3. Crie 3 opções de legendas para Instagram/Redes Sociais em Português do Brasil (PT-BR) usando os emojis sugeridos.
-
-            Retorne APENAS um objeto JSON válido com a seguinte estrutura:
-            {
-                "short": "Legenda curta, impactante e minimalista (máx 2 frases).",
-                "engagement": "Legenda focada em comentários e perguntas.",
-                "sales": "Legenda focada em conversão com CTA clara.",
-                "colorPalette": ["#HEX1", "#HEX2", ...],
-                "emojiSuggestions": ["Emoji1", "Emoji2", ...]
-            }
-        `;
-
         const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash',
+            model: "gemini-2.5-flash",
             contents: {
-                parts: [imagePart, { text: prompt }],
+                parts: [
+                    { inlineData: { data: cleanData, mimeType } },
+                    { text: `Act as an expert marketing copywriter. Analyze this image.
+                      Context provided by user: ${context}.
+                      Target Audience: ${targetAudience}.
+                      
+                      Generate marketing assets in JSON format.` }
+                ]
             },
             config: {
                 responseMimeType: "application/json",
                 responseSchema: {
                     type: Type.OBJECT,
                     properties: {
-                        short: { type: Type.STRING },
-                        engagement: { type: Type.STRING },
-                        sales: { type: Type.STRING },
+                        short: { type: Type.STRING, description: "A short, punchy caption for Instagram (under 100 chars)." },
+                        engagement: { type: Type.STRING, description: "An engaging question or conversation starter based on the image." },
+                        sales: { type: Type.STRING, description: "A persuasive sales pitch focused on benefits." },
                         colorPalette: { 
                             type: Type.ARRAY, 
-                            items: { type: Type.STRING },
-                            description: "List of 5 dominant hex color codes found in the image"
+                            items: { type: Type.STRING }, 
+                            description: "Hex codes of 3-5 dominant or complementary colors from the image." 
                         },
                         emojiSuggestions: { 
                             type: Type.ARRAY, 
-                            items: { type: Type.STRING },
-                            description: "List of 5-8 emojis that match the image aesthetics and colors"
+                            items: { type: Type.STRING }, 
+                            description: "5 relevant emojis." 
                         }
                     },
                     required: ["short", "engagement", "sales", "colorPalette", "emojiSuggestions"]
                 }
             }
         });
-
+        
         const text = response.text;
+        if (!text) throw new Error("No text generated");
         
-        if (!text) throw new Error("Resposta vazia do modelo.");
-        
-        const result = JSON.parse(text);
-        return result as MarketingCopyResult;
-
+        return JSON.parse(text) as MarketingCopyResult;
     } catch (error) {
-        console.error("Erro ao gerar copy de marketing:", error);
-        throw new Error("Falha ao gerar textos de marketing. Verifique sua conexão.");
+        console.error("Marketing Copy Error:", error);
+        throw error;
     }
 }
