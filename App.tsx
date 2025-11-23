@@ -1,4 +1,4 @@
-﻿import GeminiControls from './components/GeminiControls';
+import GeminiControls from './components/GeminiControls';
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { editImage, generateMarketingCopy, MarketingCopyResult } from './services/geminiService.ts';
 import { fileToBase64, resizeImage, cropImage } from './utils/file.ts';
@@ -52,29 +52,29 @@ import {
 
 const PRESETS = [
   { id: 'vangogh', label: "Estilo Van Gogh", prompt: "Make it look like a Van Gogh painting with thick brushstrokes and vibrant swirls" },
-  { id: 'sketch', label: "EsboÃ§o a LÃ¡pis", prompt: "Convert this into a high quality artistic pencil sketch, black and white" },
+  { id: 'sketch', label: "Esboço a Lápis", prompt: "Convert this into a high quality artistic pencil sketch, black and white" },
   { id: 'cyberpunk', label: "Cyberpunk Neon", prompt: "Add a futuristic cyberpunk neon glow, night time lighting, cyan and magenta tones" },
   { id: 'winter', label: "Inverno Nevado", prompt: "Transform the scenery into a snowy winter landscape" },
   { id: 'pixel', label: "Pixel Art", prompt: "Transform this into 16-bit pixel art style" },
   { id: 'vintage', label: "Polaroid Vintage", prompt: "Apply a vintage polaroid filter with faded colors and grain" },
-  { id: 'cinematic', label: "CinemÃ¡tico", prompt: "Enhance lighting to be dramatic and cinematic, 4k quality" },
+  { id: 'cinematic', label: "Cinemático", prompt: "Enhance lighting to be dramatic and cinematic, 4k quality" },
   { id: 'cartoon', label: "Cartoon 3D", prompt: "Transform into a 3D Pixar-style cartoon character or environment" }
 ];
 
 const MARKETING_OPTIONS = {
   surfaces: [
-    { id: 'marble', label: 'MÃ¡rmore Branco', value: 'placed on a luxurious white marble table' },
-    { id: 'wood', label: 'Madeira RÃºstica', value: 'placed on a rustic dark wood surface' },
-    { id: 'podium', label: 'PÃ³dio Minimalista', value: 'on a clean geometric podium, minimalist background' },
-    { id: 'water', label: 'Splash de Ãgua', value: 'surrounded by dynamic water splashes and droplets, refreshing look' },
+    { id: 'marble', label: 'Mármore Branco', value: 'placed on a luxurious white marble table' },
+    { id: 'wood', label: 'Madeira Rústica', value: 'placed on a rustic dark wood surface' },
+    { id: 'podium', label: 'Pódio Minimalista', value: 'on a clean geometric podium, minimalist background' },
+    { id: 'water', label: 'Splash de Água', value: 'surrounded by dynamic water splashes and droplets, refreshing look' },
     { id: 'nature', label: 'Natureza', value: 'surrounded by green leaves and natural stones, organic environment' },
     { id: 'infinity', label: 'Fundo Infinito', value: 'floating in an infinite studio background, clean and seamless' }
   ],
   lighting: [
-    { id: 'soft', label: 'Luz de EstÃºdio Suave', value: 'softbox studio lighting, diffuse shadows' },
+    { id: 'soft', label: 'Luz de Estúdio Suave', value: 'softbox studio lighting, diffuse shadows' },
     { id: 'sunlight', label: 'Luz Solar Natural', value: 'warm natural sunlight casting soft shadows, golden hour' },
     { id: 'neon', label: 'Luz Neon', value: 'dramatic neon blue and pink lighting, rim light' },
-    { id: 'dramatic', label: 'DramÃ¡tico', value: 'high contrast dramatic lighting (chiaroscuro), focus on product' }
+    { id: 'dramatic', label: 'Dramático', value: 'high contrast dramatic lighting (chiaroscuro), focus on product' }
   ],
   styles: [
     { id: 'luxury', label: 'Luxo Elegante', value: 'elegant, high-end luxury aesthetic, gold details' },
@@ -88,7 +88,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'colorize', 
     label: 'Colorir P&B', 
-    description: 'DÃª vida a fotos antigas.',
+    description: 'Dê vida a fotos antigas.',
     prompt: 'Colorize this black and white image naturally, realistic skin tones and vibrant colors. Maintain the original details.', 
     icon: PaintBrushIcon,
     color: 'text-pink-500',
@@ -97,7 +97,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'restore', 
     label: 'Restaurar', 
-    description: 'Melhore nitidez e ruÃ­do.',
+    description: 'Melhore nitidez e ruído.',
     prompt: 'Enhance image quality, remove noise, sharpen details, high resolution, 4k, photorealistic. Do not alter the subject.', 
     icon: BoltIcon,
     color: 'text-amber-500',
@@ -124,7 +124,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'lighting', 
     label: 'Corrigir Luz', 
-    description: 'Equilibre a exposiÃ§Ã£o.',
+    description: 'Equilibre a exposição.',
     prompt: 'Fix lighting, balance exposure, improve contrast and brightness naturally, professional photography.', 
     icon: SunIcon,
     color: 'text-purple-500',
@@ -141,8 +141,6 @@ const Tooltip: React.FC<{ content: string; children: React.ReactNode; className?
       <div className="hidden md:block absolute top-full mt-2 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-slate-800 text-white text-[10px] font-medium rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-xl">
         {content}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 -mb-1 border-4 border-transparent border-b-slate-800" />
-      </div>
-    </div>
   );
 };
 
@@ -159,20 +157,18 @@ const AuthDomainErrorModal = ({ isOpen, onClose, domain }: { isOpen: boolean, on
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                 </svg>
-            </div>
             <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-800 mb-2">DomÃ­nio NÃ£o Autorizado</h3>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">Domínio Não Autorizado</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                    O Google bloqueou o login porque este site (<code>{domain}</code>) nÃ£o estÃ¡ na lista de permitidos.
+                    O Google bloqueou o login porque este site (<code>{domain}</code>) não está na lista de permitidos.
                 </p>
                 <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Copie este domÃ­nio:</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Copie este domínio:</p>
                     <code className="block bg-white px-2 py-1 rounded text-red-500 font-mono text-sm select-all border border-slate-100">
                         {domain}
                     </code>
-                </div>
                 <p className="text-xs text-slate-500 mb-4">
-                    VÃ¡ no <b>Firebase Console {'>'} Authentication {'>'} ConfiguraÃ§Ãµes {'>'} DomÃ­nios autorizados</b> e adicione-o.
+                    Vá no <b>Firebase Console {'>'} Authentication {'>'} Configurações {'>'} Domínios autorizados</b> e adicione-o.
                 </p>
                 <div className="flex gap-2 justify-end">
                     <a 
@@ -189,11 +185,6 @@ const AuthDomainErrorModal = ({ isOpen, onClose, domain }: { isOpen: boolean, on
                     >
                         Entendi
                     </button>
-                </div>
-            </div>
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -238,15 +229,10 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
            <span className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-slate-200/90 backdrop-blur text-slate-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">Original</span>
            <div className="w-full h-full flex items-center justify-center bg-[url('https://placehold.co/20x20/e2e8f0/ffffff?text=')] bg-repeat rounded-lg overflow-hidden border border-slate-200">
              <img src={original} alt="Original" className="max-w-full max-h-full object-contain" />
-           </div>
-        </div>
         <div className="flex flex-col items-center gap-2 w-full h-1/2 md:flex-1 md:h-full justify-center relative">
            <span className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-cyan-100/90 backdrop-blur text-cyan-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">Pixai AI</span>
            <div className="w-full h-full flex items-center justify-center bg-[url('https://placehold.co/20x20/e2e8f0/ffffff?text=')] bg-repeat rounded-lg overflow-hidden border border-cyan-200">
              <img src={generated} alt="Generated" className="max-w-full max-h-full object-contain" />
-           </div>
-        </div>
-      </div>
     );
   }
 
@@ -277,8 +263,6 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
                 clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` 
               }}
             />
-          </div>
-       </div>
 
       {/* Slider Handle */}
       <div 
@@ -287,9 +271,6 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
       >
         <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white rounded-full shadow-xl flex items-center justify-center transition-transform duration-200 ${isDragging ? 'scale-110 ring-4 ring-cyan-400/50' : ''}`}>
           <ArrowsIcon className={`w-5 h-5 md:w-6 md:h-6 ${isDragging ? 'text-cyan-500' : 'text-slate-400'}`} />
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -313,7 +294,6 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
           <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full text-slate-500 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
-        </div>
         
         <div className="p-6 overflow-y-auto custom-scrollbar">
             {(data.colorPalette?.length > 0 || data.emojiSuggestions?.length > 0) && (
@@ -331,10 +311,7 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                                         />
                                         <span className="hidden md:block text-[10px] font-mono text-slate-500 uppercase bg-white px-1 rounded border border-slate-100">{color}</span>
                                         {copied === `color-${idx}` && <span className="absolute -top-6 bg-black text-white text-[10px] px-2 py-1 rounded animate-fade-in">Copiado!</span>}
-                                    </div>
                                 ))}
-                            </div>
-                        </div>
                     )}
                     {data.emojiSuggestions && data.emojiSuggestions.length > 0 && (
                         <div>
@@ -349,10 +326,7 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                                         {emoji}
                                     </button>
                                 ))}
-                            </div>
-                        </div>
                     )}
-                </div>
             )}
             <div className="space-y-6">
                 {Object.entries(data).map(([key, text]) => {
@@ -370,17 +344,10 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                                     {copied === key ? <CheckIcon className="w-3 h-3" /> : <CopyIcon className="w-3 h-3" />}
                                     {copied === key ? 'Copiado!' : 'Copiar'}
                                 </button>
-                            </div>
                             <div className="bg-white p-4 rounded-xl border border-slate-200 text-slate-700 text-sm whitespace-pre-wrap leading-relaxed shadow-sm">
                                 {text as string}
-                            </div>
-                        </div>
                     )
                 })}
-            </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -425,11 +392,9 @@ const ResizeModal = ({ isOpen, onClose, onResize, currentWidth, currentHeight }:
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Largura (px)</label>
             <input type="number" value={width} onChange={handleWidthChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none" />
-          </div>
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Altura (px)</label>
             <input type="number" value={height} onChange={handleHeightChange} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-800 focus:ring-2 focus:ring-cyan-500 outline-none" />
-          </div>
           <div className="flex items-center gap-2">
             <button 
                 onClick={() => setMaintainAspectRatio(!maintainAspectRatio)}
@@ -437,15 +402,10 @@ const ResizeModal = ({ isOpen, onClose, onResize, currentWidth, currentHeight }:
             >
                 {maintainAspectRatio ? <LinkIcon className="w-4 h-4" /> : <LinkSlashIcon className="w-4 h-4" />}
             </button>
-            <span className="text-xs text-slate-500">Manter proporÃ§Ã£o</span>
-          </div>
+            <span className="text-xs text-slate-500">Manter proporção</span>
           <div className="flex gap-2 pt-2">
             <button onClick={onClose} className="flex-1 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
             <button onClick={() => onResize(width, height)} className="flex-1 py-2 text-sm bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg font-medium shadow-lg shadow-cyan-500/30">Aplicar</button>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 };
 
@@ -567,7 +527,6 @@ const CropModal = ({ isOpen, onClose, onCrop, imageSrc, initialWidth, initialHei
             <div className="flex-none p-4 flex justify-between items-center text-white">
                 <h3 className="text-lg font-bold flex gap-2 items-center"><CropIcon className="w-5 h-5"/> Recortar Imagem</h3>
                 <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full"><XMarkIcon className="w-6 h-6"/></button>
-            </div>
 
             <div className="flex-1 relative overflow-hidden flex items-center justify-center p-4" ref={containerRef}>
                 <img 
@@ -595,13 +554,6 @@ const CropModal = ({ isOpen, onClose, onCrop, imageSrc, initialWidth, initialHei
                     />
                     {/* Grid lines for rule of thirds */}
                     <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 pointer-events-none">
-                        <div className="border-r border-white/30 col-span-1 row-span-3"></div>
-                        <div className="border-r border-white/30 col-span-1 row-span-3"></div>
-                        <div className="absolute w-full h-1/3 border-b border-white/30 top-0"></div>
-                        <div className="absolute w-full h-1/3 border-b border-white/30 top-1/3"></div>
-                    </div>
-                </div>
-            </div>
 
             <div className="flex-none bg-slate-800 p-4 pb-safe">
                 <div className="flex justify-center gap-4 mb-4 overflow-x-auto no-scrollbar">
@@ -609,15 +561,12 @@ const CropModal = ({ isOpen, onClose, onCrop, imageSrc, initialWidth, initialHei
                     <button onClick={() => setAspectRatio(1)} className="px-3 py-1 rounded-full bg-slate-700 text-white text-xs whitespace-nowrap">1:1 (Quadrado)</button>
                     <button onClick={() => setAspectRatio(16/9)} className="px-3 py-1 rounded-full bg-slate-700 text-white text-xs whitespace-nowrap">16:9 (YouTube)</button>
                     <button onClick={() => setAspectRatio(4/5)} className="px-3 py-1 rounded-full bg-slate-700 text-white text-xs whitespace-nowrap">4:5 (Insta)</button>
-                </div>
                 <button 
                     onClick={() => onCrop(crop.x, crop.y, crop.width, crop.height)}
                     className="w-full py-3 bg-cyan-500 hover:bg-cyan-400 text-white font-bold rounded-xl shadow-lg shadow-cyan-500/20 transition-all active:scale-95"
                 >
                     Aplicar Recorte
                 </button>
-            </div>
-        </div>
     );
 };
 
@@ -992,10 +941,8 @@ function App() {
                         <div>
                             <span className="block font-bold text-slate-700 text-sm">{tool.label}</span>
                             <span className="text-[10px] text-slate-500 leading-tight mt-1 block">{tool.description}</span>
-                        </div>
                     </button>
                 ))}
-            </div>
         );
     }
 
@@ -1004,7 +951,7 @@ function App() {
             <div className="space-y-6 pb-20 md:pb-0">
                 <div>
                     <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-                        <UsersIcon className="w-4 h-4 text-cyan-500" /> PÃºblico Alvo
+                        <UsersIcon className="w-4 h-4 text-cyan-500" /> Público Alvo
                     </label>
                     <input 
                         type="text" 
@@ -1013,12 +960,11 @@ function App() {
                         onChange={(e) => setMarketingPrompt(prev => ({ ...prev, targetAudience: e.target.value }))}
                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-cyan-500 outline-none shadow-sm"
                     />
-                </div>
 
                 {/* Category Selectors */}
                 <div className="space-y-4">
                    <div>
-                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><CubeIcon className="w-3 h-3"/> CenÃ¡rio</span>
+                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><CubeIcon className="w-3 h-3"/> Cenário</span>
                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                            {MARKETING_OPTIONS.surfaces.map(opt => (
                                <button 
@@ -1029,10 +975,8 @@ function App() {
                                    {opt.label}
                                </button>
                            ))}
-                       </div>
-                   </div>
                    <div>
-                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><SunIcon className="w-3 h-3"/> IluminaÃ§Ã£o</span>
+                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><SunIcon className="w-3 h-3"/> Iluminação</span>
                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                            {MARKETING_OPTIONS.lighting.map(opt => (
                                <button 
@@ -1043,8 +987,6 @@ function App() {
                                    {opt.label}
                                </button>
                            ))}
-                       </div>
-                   </div>
                    <div>
                        <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><LayersIcon className="w-3 h-3"/> Estilo</span>
                        <div className="grid grid-cols-2 gap-2">
@@ -1057,15 +999,10 @@ function App() {
                                    {opt.label}
                                </button>
                            ))}
-                       </div>
-                   </div>
-                </div>
                 
                 <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
                     <p className="text-[10px] font-mono text-slate-500 mb-2 uppercase">Prompt Gerado</p>
                     <p className="text-xs text-slate-700 italic">"{getFinalPrompt()}"</p>
-                </div>
-            </div>
         );
     }
 
@@ -1073,7 +1010,6 @@ function App() {
         return (
             <div className="grid grid-cols-2 gap-2 pb-20 md:pb-0">
                 {gallery.length === 0 ? (
-                    <div className="col-span-2 text-center p-8 text-slate-400 text-sm">Galeria vazia</div>
                 ) : (
                     gallery.map((img, i) => (
                         <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer" onClick={() => {
@@ -1083,10 +1019,8 @@ function App() {
                         }}>
                             <img src={img.url} className="w-full h-full object-cover" alt="Saved" />
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                        </div>
                     ))
                 )}
-            </div>
         );
     }
 
@@ -1094,16 +1028,15 @@ function App() {
     return (
         <div className="space-y-6 pb-20 md:pb-0">
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">Descreva sua ediÃ§Ã£o</label>
+                <label className="text-xs font-bold uppercase text-slate-400">Descreva sua edição</label>
                 <textarea 
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ex: Mude o cÃ©u para rosa, adicione fogos de artifÃ­cio..."
+                    placeholder="Ex: Mude o céu para rosa, adicione fogos de artifício..."
                     className="w-full h-32 bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 outline-none resize-none shadow-sm"
                 />
-            </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">SugestÃµes RÃ¡pidas</label>
+                <label className="text-xs font-bold uppercase text-slate-400">Sugestões Rápidas</label>
                 <div className="flex flex-wrap gap-2">
                     {PRESETS.map(preset => (
                         <button
@@ -1114,9 +1047,6 @@ function App() {
                             {preset.label}
                         </button>
                     ))}
-                </div>
-            </div>
-        </div>
     );
   };
 
@@ -1135,7 +1065,6 @@ function App() {
         ) : (
            <button onClick={handleLogin} className="text-cyan-600"><UserCircleIcon className="w-7 h-7"/></button>
         )}
-      </div>
 
       {/* Sidebar (Desktop) / Drawer (Mobile) */}
       <aside className={`
@@ -1145,7 +1074,6 @@ function App() {
         <div className="p-6 flex items-center justify-between border-b border-slate-100">
            <PixaiLogoFull />
            <button className="md:hidden" onClick={() => setIsMobileMenuOpen(false)}><XMarkIcon className="w-6 h-6 text-slate-400" /></button>
-        </div>
 
         {/* User Section */}
         <div className="px-6 py-4 bg-slate-50/50 border-b border-slate-100">
@@ -1155,8 +1083,6 @@ function App() {
                     <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-800 truncate">{user.displayName}</p>
                         <button onClick={handleLogout} className="text-xs text-red-500 hover:underline">Sair</button>
-                    </div>
-                </div>
             ) : (
                 <div className="flex flex-col gap-2">
                     <button onClick={handleLogin} className="w-full py-2 bg-slate-900 text-white rounded-lg text-sm font-bold hover:bg-slate-800 transition-colors">
@@ -1165,9 +1091,7 @@ function App() {
                     <button onClick={handleGuestLogin} className="w-full py-2 text-slate-500 hover:text-slate-700 text-xs underline">
                         Entrar como Visitante
                     </button>
-                </div>
             )}
-        </div>
 
         {/* Navigation Tabs */}
         <div className="flex p-2 gap-1 border-b border-slate-100 overflow-x-auto no-scrollbar">
@@ -1189,7 +1113,7 @@ function App() {
               <span className="text-[10px] font-bold uppercase">Mkt</span>
             </button>
           </Tooltip>
-          <Tooltip content="Ferramentas MÃ¡gicas" className="flex-1">
+          <Tooltip content="Ferramentas Mágicas" className="flex-1">
             <button 
               onClick={() => setActiveTab('magic')}
               className={`w-full py-3 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'magic' ? 'bg-pink-50 text-pink-600 shadow-inner' : 'text-slate-400 hover:bg-slate-50'}`}
@@ -1209,12 +1133,10 @@ function App() {
                 </button>
               </Tooltip>
           )}
-        </div>
 
         {/* Content Area */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
             {renderToolsContent()}
-        </div>
 
         {/* Generate Button */}
         <div className="p-6 border-t border-slate-100 bg-white">
@@ -1242,10 +1164,9 @@ function App() {
                     onClick={() => handleGenerate()}
                     className="w-full py-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
-                    <CheckIcon className="w-5 h-5" /> Confirmar RemoÃ§Ã£o
+                    <CheckIcon className="w-5 h-5" /> Confirmar Remoção
                 </button>
             )}
-        </div>
       </aside>
 
       {/* Main Workspace */}
@@ -1271,7 +1192,7 @@ function App() {
                    onChange={handleImageUpload}
                />
                {currentImage && (
-                   <Tooltip content="ComeÃ§ar do zero">
+                   <Tooltip content="Começar do zero">
                        <button onClick={handleReset} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
                            <PlusIcon className="w-5 h-5" />
                        </button>
@@ -1282,7 +1203,6 @@ function App() {
                        <DevicePhoneMobileIcon className="w-6 h-6" />
                    </button>
                )}
-           </div>
 
            <div className="flex items-center gap-2 md:gap-3">
                {currentImage && (
@@ -1314,7 +1234,6 @@ function App() {
                        )}
                    </>
                )}
-           </div>
 
            <div className="flex items-center gap-2 md:gap-4">
                {/* Marketing Highlight Button */}
@@ -1351,7 +1270,6 @@ function App() {
                        <DevicePhoneMobileIcon className="w-4 h-4" /> Instalar App
                    </button>
                )}
-           </div>
         </header>
 
         {/* Canvas Area */}
@@ -1363,16 +1281,14 @@ function App() {
                 <div className="text-center space-y-4 animate-in fade-in zoom-in duration-500">
                     <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
                         <ImageIcon className="w-10 h-10 text-cyan-500" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-slate-800">Comece sua criaÃ§Ã£o</h2>
-                    <p className="text-slate-500 max-w-md mx-auto">Carregue uma imagem para usar nossas ferramentas de ediÃ§Ã£o com IA, marketing e restauraÃ§Ã£o.</p>
+                    <h2 className="text-2xl font-bold text-slate-800">Comece sua criação</h2>
+                    <p className="text-slate-500 max-w-md mx-auto">Carregue uma imagem para usar nossas ferramentas de edição com IA, marketing e restauração.</p>
                     <button 
                         onClick={() => document.getElementById('file-upload')?.click()}
                         className="px-8 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 active:scale-95"
                     >
                         Escolher Imagem
                     </button>
-                </div>
             ) : (
                 <div 
                     className="relative shadow-2xl shadow-slate-300/50 transition-transform duration-100 ease-linear"
@@ -1386,7 +1302,6 @@ function App() {
                     {generatedImage && !isMasking ? (
                         <div className="w-full h-full" style={{ width: imgDimensions.width || 'auto', height: imgDimensions.height || 'auto' }}>
                             <ComparisonViewer original={originalImage!} generated={generatedImage} mode={comparisonMode} />
-                        </div>
                     ) : (
                         <div className="relative">
                             <img 
@@ -1420,9 +1335,7 @@ function App() {
                                     }}
                                 />
                             )}
-                        </div>
                     )}
-                </div>
             )}
 
             {/* Floating Controls (Zoom/Pan) */}
@@ -1433,7 +1346,6 @@ function App() {
                      <button onClick={() => setZoom(z => Math.max(z - 0.5, 0.1))} className="p-2 hover:bg-slate-100 rounded-lg text-slate-600"><MagnifyingGlassMinusIcon className="w-5 h-5"/></button>
                      <div className="h-px w-full bg-slate-200 my-1" />
                      <button onClick={() => setIsPanningTool(!isPanningTool)} className={`p-2 rounded-lg ${isPanningTool ? 'bg-cyan-100 text-cyan-700' : 'text-slate-600 hover:bg-slate-100'}`}><HandIcon className="w-5 h-5"/></button>
-                </div>
             )}
 
             {/* Masking Toolbar */}
@@ -1448,7 +1360,6 @@ function App() {
                             onChange={(e) => setBrushSize(Number(e.target.value))}
                             className="w-24 accent-rose-500 h-1 bg-slate-600 rounded-full appearance-none"
                         />
-                    </div>
                     <div className="w-px h-6 bg-white/20" />
                     <button onClick={clearMask} className="p-2 hover:bg-white/10 rounded-lg text-rose-300 hover:text-rose-200 flex items-center gap-2 text-xs font-bold">
                         <TrashIcon className="w-4 h-4" /> Limpar
@@ -1456,7 +1367,6 @@ function App() {
                     <button onClick={() => handleGenerate()} className="px-4 py-1.5 bg-rose-500 hover:bg-rose-600 rounded-lg text-xs font-bold shadow-lg shadow-rose-500/20">
                         Aplicar
                     </button>
-                </div>
             )}
 
             {/* Loading Overlay */}
@@ -1466,10 +1376,7 @@ function App() {
                         <div className="w-16 h-16 border-4 border-slate-200 border-t-cyan-500 rounded-full animate-spin" />
                         <div className="absolute inset-0 flex items-center justify-center">
                             <SparklesIcon className="w-6 h-6 text-cyan-500 animate-pulse" />
-                        </div>
-                    </div>
-                    <p className="mt-4 text-slate-600 font-medium animate-pulse">A IA estÃ¡ trabalhando na sua imagem...</p>
-                </div>
+                    <p className="mt-4 text-slate-600 font-medium animate-pulse">A IA está trabalhando na sua imagem...</p>
             )}
 
             {/* Error Toast */}
@@ -1478,10 +1385,7 @@ function App() {
                     <span className="font-bold text-lg">!</span>
                     <p className="text-sm font-medium">{error}</p>
                     <button onClick={() => setError(null)}><XMarkIcon className="w-5 h-5 opacity-50 hover:opacity-100"/></button>
-                </div>
             )}
-        </div>
-      </div>
 
       {/* Modals */}
       <ResizeModal isOpen={isResizeModalOpen} onClose={() => setIsResizeModalOpen(false)} onResize={handleResize} currentWidth={imgDimensions.width} currentHeight={imgDimensions.height} />
