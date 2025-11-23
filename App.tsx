@@ -1481,7 +1481,7 @@ function App() {
                 </div>
             )}
         </div>
-      </main>
+      </div>
 
       {/* Modals */}
       <ResizeModal isOpen={isResizeModalOpen} onClose={() => setIsResizeModalOpen(false)} onResize={handleResize} currentWidth={imgDimensions.width} currentHeight={imgDimensions.height} />
