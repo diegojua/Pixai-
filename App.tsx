@@ -1489,7 +1489,6 @@ function App() {
       {copyResult && <CopyModal data={copyResult} onClose={() => setCopyResult(null)} />}
       <AuthDomainErrorModal isOpen={!!authError} onClose={() => setAuthError(null)} domain={authError || ''} />
 
-    </div>
   );
 }
 
