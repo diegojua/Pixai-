@@ -1,8 +1,9 @@
+﻿import GeminiControls from './components/GeminiControls';
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import { editImage, generateMarketingCopy, MarketingCopyResult } from './services/geminiService.ts';
 import { fileToBase64, resizeImage, cropImage } from './utils/file.ts';
 import PixaiLogoFull from './components/Logo.tsx';
-import { auth, googleProvider, db, storage } from './services/firebase.ts';
+import { auth, googleProvider, db, storage } from './firebase.ts';
 import { signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, query, where, getDocs, orderBy } from 'firebase/firestore';
@@ -51,29 +52,29 @@ import {
 
 const PRESETS = [
   { id: 'vangogh', label: "Estilo Van Gogh", prompt: "Make it look like a Van Gogh painting with thick brushstrokes and vibrant swirls" },
-  { id: 'sketch', label: "Esboço a Lápis", prompt: "Convert this into a high quality artistic pencil sketch, black and white" },
+  { id: 'sketch', label: "EsboÃ§o a LÃ¡pis", prompt: "Convert this into a high quality artistic pencil sketch, black and white" },
   { id: 'cyberpunk', label: "Cyberpunk Neon", prompt: "Add a futuristic cyberpunk neon glow, night time lighting, cyan and magenta tones" },
   { id: 'winter', label: "Inverno Nevado", prompt: "Transform the scenery into a snowy winter landscape" },
   { id: 'pixel', label: "Pixel Art", prompt: "Transform this into 16-bit pixel art style" },
   { id: 'vintage', label: "Polaroid Vintage", prompt: "Apply a vintage polaroid filter with faded colors and grain" },
-  { id: 'cinematic', label: "Cinemático", prompt: "Enhance lighting to be dramatic and cinematic, 4k quality" },
+  { id: 'cinematic', label: "CinemÃ¡tico", prompt: "Enhance lighting to be dramatic and cinematic, 4k quality" },
   { id: 'cartoon', label: "Cartoon 3D", prompt: "Transform into a 3D Pixar-style cartoon character or environment" }
 ];
 
 const MARKETING_OPTIONS = {
   surfaces: [
-    { id: 'marble', label: 'Mármore Branco', value: 'placed on a luxurious white marble table' },
-    { id: 'wood', label: 'Madeira Rústica', value: 'placed on a rustic dark wood surface' },
-    { id: 'podium', label: 'Pódio Minimalista', value: 'on a clean geometric podium, minimalist background' },
-    { id: 'water', label: 'Splash de Água', value: 'surrounded by dynamic water splashes and droplets, refreshing look' },
+    { id: 'marble', label: 'MÃ¡rmore Branco', value: 'placed on a luxurious white marble table' },
+    { id: 'wood', label: 'Madeira RÃºstica', value: 'placed on a rustic dark wood surface' },
+    { id: 'podium', label: 'PÃ³dio Minimalista', value: 'on a clean geometric podium, minimalist background' },
+    { id: 'water', label: 'Splash de Ãgua', value: 'surrounded by dynamic water splashes and droplets, refreshing look' },
     { id: 'nature', label: 'Natureza', value: 'surrounded by green leaves and natural stones, organic environment' },
     { id: 'infinity', label: 'Fundo Infinito', value: 'floating in an infinite studio background, clean and seamless' }
   ],
   lighting: [
-    { id: 'soft', label: 'Luz de Estúdio Suave', value: 'softbox studio lighting, diffuse shadows' },
+    { id: 'soft', label: 'Luz de EstÃºdio Suave', value: 'softbox studio lighting, diffuse shadows' },
     { id: 'sunlight', label: 'Luz Solar Natural', value: 'warm natural sunlight casting soft shadows, golden hour' },
     { id: 'neon', label: 'Luz Neon', value: 'dramatic neon blue and pink lighting, rim light' },
-    { id: 'dramatic', label: 'Dramático', value: 'high contrast dramatic lighting (chiaroscuro), focus on product' }
+    { id: 'dramatic', label: 'DramÃ¡tico', value: 'high contrast dramatic lighting (chiaroscuro), focus on product' }
   ],
   styles: [
     { id: 'luxury', label: 'Luxo Elegante', value: 'elegant, high-end luxury aesthetic, gold details' },
@@ -87,7 +88,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'colorize', 
     label: 'Colorir P&B', 
-    description: 'Dê vida a fotos antigas.',
+    description: 'DÃª vida a fotos antigas.',
     prompt: 'Colorize this black and white image naturally, realistic skin tones and vibrant colors. Maintain the original details.', 
     icon: PaintBrushIcon,
     color: 'text-pink-500',
@@ -96,7 +97,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'restore', 
     label: 'Restaurar', 
-    description: 'Melhore nitidez e ruído.',
+    description: 'Melhore nitidez e ruÃ­do.',
     prompt: 'Enhance image quality, remove noise, sharpen details, high resolution, 4k, photorealistic. Do not alter the subject.', 
     icon: BoltIcon,
     color: 'text-amber-500',
@@ -123,7 +124,7 @@ const MAGIC_TOOLS = [
   { 
     id: 'lighting', 
     label: 'Corrigir Luz', 
-    description: 'Equilibre a exposição.',
+    description: 'Equilibre a exposiÃ§Ã£o.',
     prompt: 'Fix lighting, balance exposure, improve contrast and brightness naturally, professional photography.', 
     icon: SunIcon,
     color: 'text-purple-500',
@@ -160,18 +161,18 @@ const AuthDomainErrorModal = ({ isOpen, onClose, domain }: { isOpen: boolean, on
                 </svg>
             </div>
             <div className="flex-1">
-                <h3 className="text-lg font-bold text-slate-800 mb-2">Domínio Não Autorizado</h3>
+                <h3 className="text-lg font-bold text-slate-800 mb-2">DomÃ­nio NÃ£o Autorizado</h3>
                 <p className="text-sm text-slate-600 mb-4">
-                    O Google bloqueou o login porque este site (<code>{domain}</code>) não está na lista de permitidos.
+                    O Google bloqueou o login porque este site (<code>{domain}</code>) nÃ£o estÃ¡ na lista de permitidos.
                 </p>
                 <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 mb-4">
-                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Copie este domínio:</p>
+                    <p className="text-xs font-bold text-slate-500 uppercase mb-1">Copie este domÃ­nio:</p>
                     <code className="block bg-white px-2 py-1 rounded text-red-500 font-mono text-sm select-all border border-slate-100">
                         {domain}
                     </code>
                 </div>
                 <p className="text-xs text-slate-500 mb-4">
-                    Vá no <b>Firebase Console {'>'} Authentication {'>'} Configurações {'>'} Domínios autorizados</b> e adicione-o.
+                    VÃ¡ no <b>Firebase Console {'>'} Authentication {'>'} ConfiguraÃ§Ãµes {'>'} DomÃ­nios autorizados</b> e adicione-o.
                 </p>
                 <div className="flex gap-2 justify-end">
                     <a 
@@ -436,7 +437,7 @@ const ResizeModal = ({ isOpen, onClose, onResize, currentWidth, currentHeight }:
             >
                 {maintainAspectRatio ? <LinkIcon className="w-4 h-4" /> : <LinkSlashIcon className="w-4 h-4" />}
             </button>
-            <span className="text-xs text-slate-500">Manter proporção</span>
+            <span className="text-xs text-slate-500">Manter proporÃ§Ã£o</span>
           </div>
           <div className="flex gap-2 pt-2">
             <button onClick={onClose} className="flex-1 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg">Cancelar</button>
@@ -1003,7 +1004,7 @@ function App() {
             <div className="space-y-6 pb-20 md:pb-0">
                 <div>
                     <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-                        <UsersIcon className="w-4 h-4 text-cyan-500" /> Público Alvo
+                        <UsersIcon className="w-4 h-4 text-cyan-500" /> PÃºblico Alvo
                     </label>
                     <input 
                         type="text" 
@@ -1017,7 +1018,7 @@ function App() {
                 {/* Category Selectors */}
                 <div className="space-y-4">
                    <div>
-                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><CubeIcon className="w-3 h-3"/> Cenário</span>
+                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><CubeIcon className="w-3 h-3"/> CenÃ¡rio</span>
                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                            {MARKETING_OPTIONS.surfaces.map(opt => (
                                <button 
@@ -1031,7 +1032,7 @@ function App() {
                        </div>
                    </div>
                    <div>
-                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><SunIcon className="w-3 h-3"/> Iluminação</span>
+                       <span className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400 mb-2"><SunIcon className="w-3 h-3"/> IluminaÃ§Ã£o</span>
                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-2">
                            {MARKETING_OPTIONS.lighting.map(opt => (
                                <button 
@@ -1093,16 +1094,16 @@ function App() {
     return (
         <div className="space-y-6 pb-20 md:pb-0">
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">Descreva sua edição</label>
+                <label className="text-xs font-bold uppercase text-slate-400">Descreva sua ediÃ§Ã£o</label>
                 <textarea 
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ex: Mude o céu para rosa, adicione fogos de artifício..."
+                    placeholder="Ex: Mude o cÃ©u para rosa, adicione fogos de artifÃ­cio..."
                     className="w-full h-32 bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 outline-none resize-none shadow-sm"
                 />
             </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">Sugestões Rápidas</label>
+                <label className="text-xs font-bold uppercase text-slate-400">SugestÃµes RÃ¡pidas</label>
                 <div className="flex flex-wrap gap-2">
                     {PRESETS.map(preset => (
                         <button
@@ -1188,7 +1189,7 @@ function App() {
               <span className="text-[10px] font-bold uppercase">Mkt</span>
             </button>
           </Tooltip>
-          <Tooltip content="Ferramentas Mágicas" className="flex-1">
+          <Tooltip content="Ferramentas MÃ¡gicas" className="flex-1">
             <button 
               onClick={() => setActiveTab('magic')}
               className={`w-full py-3 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'magic' ? 'bg-pink-50 text-pink-600 shadow-inner' : 'text-slate-400 hover:bg-slate-50'}`}
@@ -1241,14 +1242,15 @@ function App() {
                     onClick={() => handleGenerate()}
                     className="w-full py-4 bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-xl shadow-lg shadow-rose-500/30 transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
-                    <CheckIcon className="w-5 h-5" /> Confirmar Remoção
+                    <CheckIcon className="w-5 h-5" /> Confirmar RemoÃ§Ã£o
                 </button>
             )}
         </div>
       </aside>
 
       {/* Main Workspace */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-slate-50 md:pt-0 pt-16">
+      
+      <GeminiControls />
         
         {/* Top Toolbar */}
         <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 z-30">
@@ -1269,7 +1271,7 @@ function App() {
                    onChange={handleImageUpload}
                />
                {currentImage && (
-                   <Tooltip content="Começar do zero">
+                   <Tooltip content="ComeÃ§ar do zero">
                        <button onClick={handleReset} className="p-2 hover:bg-slate-100 rounded-lg text-slate-500">
                            <PlusIcon className="w-5 h-5" />
                        </button>
@@ -1362,8 +1364,8 @@ function App() {
                     <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
                         <ImageIcon className="w-10 h-10 text-cyan-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-slate-800">Comece sua criação</h2>
-                    <p className="text-slate-500 max-w-md mx-auto">Carregue uma imagem para usar nossas ferramentas de edição com IA, marketing e restauração.</p>
+                    <h2 className="text-2xl font-bold text-slate-800">Comece sua criaÃ§Ã£o</h2>
+                    <p className="text-slate-500 max-w-md mx-auto">Carregue uma imagem para usar nossas ferramentas de ediÃ§Ã£o com IA, marketing e restauraÃ§Ã£o.</p>
                     <button 
                         onClick={() => document.getElementById('file-upload')?.click()}
                         className="px-8 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/20 active:scale-95"
@@ -1466,7 +1468,7 @@ function App() {
                             <SparklesIcon className="w-6 h-6 text-cyan-500 animate-pulse" />
                         </div>
                     </div>
-                    <p className="mt-4 text-slate-600 font-medium animate-pulse">A IA está trabalhando na sua imagem...</p>
+                    <p className="mt-4 text-slate-600 font-medium animate-pulse">A IA estÃ¡ trabalhando na sua imagem...</p>
                 </div>
             )}
 
