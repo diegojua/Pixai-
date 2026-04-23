@@ -1,5 +1,6 @@
 # Arquivos de ambiente - Contêm chaves secretas!
 .env
+.env.local
 .env.*
 !/.env.example
 
@@ -8,3 +9,6 @@
 
 # Build de produção
 /dist
+
+# Misc
+package-lock.json
