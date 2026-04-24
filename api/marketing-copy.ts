@@ -1,6 +1,9 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+const MAX_BASE64_LENGTH = 7_000_000;
+const ALLOWED_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
 interface RequestBody {
   imageBase64: string;
   mimeType: string;
@@ -14,6 +17,79 @@ interface MarketingCopyResult {
   sales: string;
   colorPalette?: string[];
   emojiSuggestions?: string[];
+}
+
+function sendError(
+  res: VercelResponse,
+  statusCode: number,
+  message: string
+): void {
+  res.status(statusCode).json({ error: message });
+}
+
+function getNonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function parseBody(body: VercelRequest["body"]): Partial<RequestBody> {
+  if (!body) {
+    return {};
+  }
+
+  if (typeof body === "string") {
+    try {
+      return JSON.parse(body) as Partial<RequestBody>;
+    } catch {
+      throw new Error("Body JSON inválido.");
+    }
+  }
+
+  if (typeof body === "object") {
+    return body as Partial<RequestBody>;
+  }
+
+  return {};
+}
+
+function validateRequestBody(body: Partial<RequestBody>): RequestBody {
+  const imageBase64 = getNonEmptyString(body.imageBase64);
+  const mimeType = getNonEmptyString(body.mimeType);
+  const context = getNonEmptyString(body.context);
+  const targetAudience = getNonEmptyString(body.targetAudience);
+
+  if (!imageBase64 || !mimeType || !context || !targetAudience) {
+    throw new Error(
+      "Body inválido. Envie strings não vazias em imageBase64, mimeType, context e targetAudience."
+    );
+  }
+
+  if (!ALLOWED_MIME_TYPES.has(mimeType)) {
+    throw new Error("mimeType inválido. Use image/jpeg, image/png ou image/webp.");
+  }
+
+  const base64Data = imageBase64.includes(",")
+    ? imageBase64.split(",")[1]
+    : imageBase64;
+
+  if (!base64Data) {
+    throw new Error("imageBase64 inválido.");
+  }
+
+  if (base64Data.length > MAX_BASE64_LENGTH) {
+    throw new Error("Imagem muito grande. Envie um arquivo menor para gerar o marketing copy.");
+  }
+
+  return {
+    imageBase64,
+    mimeType,
+    context,
+    targetAudience,
+  };
 }
 
 /**
@@ -47,33 +123,32 @@ export default async function handler(
   res: VercelResponse
 ): Promise<void> {
   if (req.method !== "POST") {
-    res.status(405).json({ error: "Método não permitido. Use POST." });
+    res.setHeader("Allow", "POST");
+    sendError(res, 405, "Método não permitido. Use POST.");
     return;
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res
-      .status(500)
-      .json({
-        error:
-          "GEMINI_API_KEY não está configurada no servidor. Configure a variável de ambiente no painel da Vercel.",
-      });
+    sendError(
+      res,
+      500,
+      "GEMINI_API_KEY não está configurada no servidor. Configure a variável de ambiente no painel da Vercel."
+    );
     return;
   }
 
-  const body = req.body as Partial<RequestBody>;
-  const { imageBase64, mimeType, context, targetAudience } = body;
+  let requestBody: RequestBody;
 
-  if (!imageBase64 || !mimeType || !context || !targetAudience) {
-    res
-      .status(400)
-      .json({
-        error:
-          "Body inválido. Campos obrigatórios: imageBase64, mimeType, context, targetAudience.",
-      });
+  try {
+    requestBody = validateRequestBody(parseBody(req.body));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Body inválido.";
+    sendError(res, 400, message);
     return;
   }
+
+  const { imageBase64, mimeType, context, targetAudience } = requestBody;
 
   const prompt = `
     Analise a imagem deste produto. O contexto adicional é: "${context}". O público alvo é: "${targetAudience}".
@@ -117,11 +192,15 @@ export default async function handler(
 
     res.status(200).json(marketingCopy);
   } catch (error) {
-    console.error("Erro ao chamar Gemini:", error);
+    console.error("Erro ao chamar Gemini marketing-copy", {
+      message: error instanceof Error ? error.message : "Erro desconhecido",
+      mimeType,
+      contextLength: context.length,
+      targetAudienceLength: targetAudience.length,
+      imageLength: base64Data.length,
+    });
     const message =
       error instanceof Error ? error.message : "Erro desconhecido";
-    res
-      .status(500)
-      .json({ error: `Erro ao gerar conteúdo com a IA: ${message}` });
+    sendError(res, 500, `Erro ao gerar conteúdo com a IA: ${message}`);
   }
 }

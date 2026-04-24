@@ -26,11 +26,11 @@ npm install
 # 2. Copie o arquivo de exemplo e preencha as variáveis
 cp .env.example .env.local
 
-# 3. Inicie o servidor de desenvolvimento
-npm run dev
+# 3. Inicie o ambiente com frontend + functions
+npm run dev:vercel
 ```
 
-> O frontend roda em <http://localhost:3000>.
+> Use `npm run dev` apenas para iterar no frontend. Para testar `/api/marketing-copy`, rode `npm run dev:vercel` porque o `vite` sozinho não sobe `api/*`.
 
 ---
 
@@ -62,11 +62,10 @@ npm run dev
 Para testar o endpoint `/api/marketing-copy` localmente, use o **Vercel CLI**:
 
 ```bash
-npm install -g vercel
-vercel dev
+npm run dev:vercel
 ```
 
-O Vercel CLI sobe o frontend (Vite) e as Vercel Functions simultaneamente. Adicione `GEMINI_API_KEY` no arquivo `.env.local`.
+O Vercel CLI sobe o frontend (Vite) e as Vercel Functions simultaneamente. O comando usa `npx`, então não depende de instalação global. Adicione `GEMINI_API_KEY` no arquivo `.env.local`.
 
 ---
 

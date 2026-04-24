@@ -27,11 +27,19 @@ export const generateMarketingCopy = async (
   context: string,
   targetAudience: string
 ): Promise<MarketingCopyResult> => {
-  const response = await fetch("/api/marketing-copy", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ imageBase64: base64Image, mimeType, context, targetAudience }),
-  });
+  let response: Response;
+
+  try {
+    response = await fetch("/api/marketing-copy", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ imageBase64: base64Image, mimeType, context, targetAudience }),
+    });
+  } catch {
+    throw new Error(
+      "Nao foi possivel acessar /api/marketing-copy. Rode o app com npm run dev:vercel e confirme a configuracao da GEMINI_API_KEY no servidor."
+    );
+  }
 
   if (!response.ok) {
     let message = `Erro ${response.status}`;
@@ -41,6 +49,11 @@ export const generateMarketingCopy = async (
     } catch {
       // ignora erro de parse
     }
+
+    if (response.status >= 500 && !message.includes("GEMINI_API_KEY")) {
+      message = `${message} Verifique se a funcao /api/marketing-copy esta rodando via Vercel e se GEMINI_API_KEY foi configurada.`;
+    }
+
     throw new Error(message);
   }
 
