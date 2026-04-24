@@ -1,5 +1,8 @@
 import GeminiControls from './components/GeminiControls';
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
+import MobileTopBar from './components/MobileTopBar.tsx';
+import MobileBottomNav from './components/MobileBottomNav.tsx';
+import GalleryWorkspace from './components/GalleryWorkspace.tsx';
 import { editImage, generateMarketingCopy, MarketingCopyResult } from './services/geminiService.ts';
 import { fileToBase64, resizeImage, cropImage } from './utils/file.ts';
 import PixaiLogoFull from './components/Logo.tsx';
@@ -35,7 +38,6 @@ import {
   BrushIcon,
   TrashIcon,
   MagicWandIcon,
-  Bars3Icon,
   PlusIcon,
   MagnifyingGlassPlusIcon,
   MagnifyingGlassMinusIcon,
@@ -43,8 +45,6 @@ import {
   DevicePhoneMobileIcon,
   CropIcon,
   CloudArrowUpIcon,
-  UserCircleIcon,
-  ArrowRightStartOnRectangleIcon,
   PhotoIcon
 } from './components/Icons.tsx';
 
@@ -131,6 +131,13 @@ const MAGIC_TOOLS = [
     bg: 'bg-purple-50'
   },
 ];
+
+const GALLERY_FILTERS = [
+    { id: 'all', label: 'Recentes' },
+    { id: 'favorites', label: 'Favoritos' },
+    { id: 'edited', label: 'IA Editada' },
+    { id: 'draft', label: 'Rascunho' },
+] as const;
 
 // --- Tooltip Component ---
 
@@ -302,6 +309,12 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
     setTimeout(() => setCopied(null), 2000);
   };
 
+    const handleCopyAll = () => {
+        const joined = [data.short, data.engagement, data.sales].filter(Boolean).join('\n\n');
+        if (!joined) return;
+        handleCopy(joined, 'all');
+    };
+
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end md:items-center justify-center md:p-4">
       <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in slide-in-from-bottom-full md:zoom-in duration-300 flex flex-col max-h-[85vh] md:max-h-[90vh]">
@@ -376,6 +389,21 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                         </div>
                     )
                 })}
+            </div>
+
+            <div className="mt-8 space-y-3">
+                <button
+                    onClick={handleCopyAll}
+                    className={`w-full py-3 rounded-xl border text-base font-bold transition-colors ${copied === 'all' ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-blue-600 text-blue-700'}`}
+                >
+                    {copied === 'all' ? 'Copiado!' : 'Copy All'}
+                </button>
+                <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white text-lg font-semibold">
+                    Share to Instagram
+                </button>
+                <button className="w-full py-3 rounded-xl bg-black text-white text-lg font-semibold">Share to TikTok</button>
+                <button className="w-full py-3 rounded-xl bg-black text-white text-lg font-semibold">Share to X</button>
+                <button className="w-full py-3 rounded-xl bg-blue-700 text-white text-lg font-semibold">Publish to Campaign</button>
             </div>
         </div>
       </div>
@@ -622,6 +650,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<'editor' | 'marketing' | 'magic' | 'gallery'>('editor');
   const [prompt, setPrompt] = useState('');
   const [marketingPrompt, setMarketingPrompt] = useState({ surface: '', lighting: '', style: '', targetAudience: '' });
+    const [gallerySearch, setGallerySearch] = useState('');
+    const [galleryFilter, setGalleryFilter] = useState<(typeof GALLERY_FILTERS)[number]['id']>('all');
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -845,6 +875,31 @@ function App() {
       return prompt;
   };
 
+    const formatGalleryDate = (value: any) => {
+        const date = value?.toDate ? value.toDate() : value ? new Date(value) : null;
+        if (!date || Number.isNaN(date.getTime())) {
+            return 'Sem data';
+        }
+        return new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(date);
+    };
+
+    const filteredGallery = gallery.filter((item) => {
+        const promptText = String(item.prompt || '').toLowerCase();
+        const searchText = gallerySearch.trim().toLowerCase();
+        const matchesSearch =
+            searchText.length === 0 ||
+            promptText.includes(searchText) ||
+            String(item.id || '').toLowerCase().includes(searchText);
+
+        const matchesFilter =
+            galleryFilter === 'all' ||
+            (galleryFilter === 'favorites' && Boolean(item.favorite)) ||
+            (galleryFilter === 'edited' && promptText.length > 0) ||
+            (galleryFilter === 'draft' && promptText.length === 0);
+
+        return matchesSearch && matchesFilter;
+    });
+
   const handleGenerate = async (overridePrompt?: string) => {
     if (!currentImage) return;
     
@@ -1066,23 +1121,20 @@ function App() {
 
     if (activeTab === 'gallery') {
         return (
-            <div className="grid grid-cols-2 gap-2 pb-20 md:pb-0">
-                {gallery.length === 0 ? (
-                    <div className="col-span-2 flex flex-col items-center justify-center py-16 text-slate-400">
-                        <p className="text-sm">Nenhuma imagem salva ainda.</p>
-                    </div>
-                ) : (
-                    gallery.map((img, i) => (
-                        <div key={i} className="relative group aspect-square rounded-xl overflow-hidden border border-slate-200 bg-slate-100 cursor-pointer" onClick={() => {
-                            setCurrentImage(img.url);
-                            setOriginalImage(img.url);
-                            setGeneratedImage(null);
-                        }}>
-                            <img src={img.url} className="w-full h-full object-cover" alt="Saved" />
-                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                        </div>
-                    ))
-                )}
+            <div className="space-y-4 pb-20 md:pb-0">
+                <div>
+                    <label className="text-xs font-bold uppercase text-slate-400">Buscar</label>
+                    <input
+                        type="text"
+                        value={gallerySearch}
+                        onChange={(e) => setGallerySearch(e.target.value)}
+                        placeholder="Buscar por prompt ou ID"
+                        className="mt-2 w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none"
+                    />
+                </div>
+                <p className="text-xs text-slate-500">
+                    {filteredGallery.length} item(ns). Abra no painel principal para visualizar a galeria completa.
+                </p>
             </div>
         );
     }
@@ -1121,18 +1173,14 @@ function App() {
   
   return (
     <div className="flex h-dvh w-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
-      {/* Mobile Header */}
-      <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-40 flex items-center justify-between px-4 shadow-sm">
-        <button onClick={() => setIsMobileMenuOpen(true)} className="text-slate-700">
-            <Bars3Icon className="w-6 h-6" />
-        </button>
-        <PixaiLogoFull size="small" />
-        {user ? (
-           <img src={user.photoURL || 'https://placehold.co/32'} className="w-8 h-8 rounded-full border border-slate-200" onClick={handleLogout} />
-        ) : (
-           <button onClick={handleLogin} className="text-cyan-600"><UserCircleIcon className="w-7 h-7"/></button>
-        )}
-      </div>
+      <MobileTopBar
+        canDownload={Boolean(currentImage || generatedImage)}
+        onMenuOpen={() => setIsMobileMenuOpen(true)}
+        onDownload={() => {
+          const downloadable = generatedImage || currentImage;
+          if (downloadable) handleDownload(downloadable);
+        }}
+      />
 
       {/* Sidebar (Desktop) / Drawer (Mobile) */}
       <aside className={`
@@ -1357,7 +1405,24 @@ function App() {
              onWheel={handleWheel}
              onMouseMove={handleCanvasMouseMove}
         >
-            {!currentImage ? (
+            {activeTab === 'gallery' ? (
+                <GalleryWorkspace
+                    filters={GALLERY_FILTERS}
+                    galleryFilter={galleryFilter}
+                    gallerySearch={gallerySearch}
+                    filteredGallery={filteredGallery}
+                    onFilterChange={setGalleryFilter}
+                    onSearchChange={setGallerySearch}
+                    onOpenImage={(img) => {
+                        setCurrentImage(img.url);
+                        setOriginalImage(img.url);
+                        setGeneratedImage(null);
+                        setActiveTab('editor');
+                    }}
+                    onCreateNew={() => setActiveTab('editor')}
+                    formatDate={formatGalleryDate}
+                />
+            ) : (!currentImage ? (
                 <div className="text-center space-y-4 animate-in fade-in zoom-in duration-500">
                     <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
                         <ImageIcon className="w-10 h-10 text-cyan-500" />
@@ -1421,7 +1486,7 @@ function App() {
                     </div>
                     )}
                 </div>
-            )}
+            ))}
 
             {/* Floating Controls (Zoom/Pan) */}
             {currentImage && (
@@ -1481,6 +1546,9 @@ function App() {
 
         </div>
       </div>
+
+      <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+
       {/* Modals */}
       <ResizeModal isOpen={isResizeModalOpen} onClose={() => setIsResizeModalOpen(false)} onResize={handleResize} currentWidth={imgDimensions.width} currentHeight={imgDimensions.height} />
       <CropModal isOpen={isCropModalOpen} onClose={() => setIsCropModalOpen(false)} onCrop={handleCrop} imageSrc={currentImage} initialWidth={imgDimensions.width} initialHeight={imgDimensions.height} />
