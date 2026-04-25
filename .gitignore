@@ -13,3 +13,4 @@
 # Misc
 package-lock.json
 .vercel
+.tmp-handler-test/
