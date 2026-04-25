@@ -6,15 +6,63 @@ export interface MarketingCopyResult {
   emojiSuggestions?: string[];
 }
 
-// editImage permanece como placeholder — edição real via IA ainda não implementada
 export const editImage = async (
   base64Image: string,
-  _mimeType: string,
-  _prompt: string,
-  _isMasking: boolean
+  mimeType: string,
+  prompt: string,
+  isMasking: boolean,
+  options?: {
+    guidanceScale?: number;
+    variationStrength?: 'subtle' | 'strong';
+  }
 ): Promise<string> => {
-  console.warn("AVISO: 'editImage' é um placeholder e retorna a imagem original.");
-  return Promise.resolve(base64Image);
+  let response: Response;
+
+  try {
+    response = await fetch('/api/edit-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        imageBase64: base64Image,
+        mimeType,
+        prompt,
+        isMasking,
+        guidanceScale: options?.guidanceScale,
+        variationStrength: options?.variationStrength,
+      }),
+    });
+  } catch {
+    throw new Error(
+      'Nao foi possivel acessar /api/edit-image. Rode o app com npm run dev:vercel e confirme GEMINI_API_KEY no servidor.'
+    );
+  }
+
+  if (!response.ok) {
+    let message = `Erro ${response.status}`;
+
+    if (response.status === 404) {
+      throw new Error(
+        'Endpoint /api/edit-image nao encontrado. Em ambiente local, rode com npm run dev:vercel para habilitar as funcoes serverless.'
+      );
+    }
+
+    try {
+      const data = await response.json();
+      if (data?.error) {
+        message = data.error;
+      }
+    } catch {
+      // ignora erro de parse
+    }
+    throw new Error(message);
+  }
+
+  const data = (await response.json()) as { imageBase64?: string };
+  if (!data?.imageBase64) {
+    throw new Error('A IA nao retornou uma imagem valida.');
+  }
+
+  return data.imageBase64;
 };
 
 /**
@@ -43,6 +91,13 @@ export const generateMarketingCopy = async (
 
   if (!response.ok) {
     let message = `Erro ${response.status}`;
+
+    if (response.status === 404) {
+      throw new Error(
+        'Endpoint /api/marketing-copy nao encontrado. Em ambiente local, rode com npm run dev:vercel para habilitar as funcoes serverless.'
+      );
+    }
+
     try {
       const data = await response.json();
       if (data?.error) message = data.error;

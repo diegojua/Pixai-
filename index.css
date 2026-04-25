@@ -1,8 +1,24 @@
-﻿@tailwind base;
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* Estilos básicos para a demo - remova/edite conforme preferir */
 body {
   @apply bg-slate-50 text-slate-900;
+  font-family: 'Inter', sans-serif;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

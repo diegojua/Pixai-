@@ -1,4 +1,3 @@
-import GeminiControls from './components/GeminiControls';
 import React, { useState, useCallback, useRef, useEffect, useLayoutEffect } from 'react';
 import MobileTopBar from './components/MobileTopBar.tsx';
 import MobileBottomNav from './components/MobileBottomNav.tsx';
@@ -51,36 +50,36 @@ import {
 // --- Constants & Data ---
 
 const PRESETS = [
-  { id: 'vangogh', label: "Estilo Van Gogh", prompt: "Make it look like a Van Gogh painting with thick brushstrokes and vibrant swirls" },
-  { id: 'sketch', label: "Esboço a Lápis", prompt: "Convert this into a high quality artistic pencil sketch, black and white" },
-  { id: 'cyberpunk', label: "Cyberpunk Neon", prompt: "Add a futuristic cyberpunk neon glow, night time lighting, cyan and magenta tones" },
-  { id: 'winter', label: "Inverno Nevado", prompt: "Transform the scenery into a snowy winter landscape" },
-  { id: 'pixel', label: "Pixel Art", prompt: "Transform this into 16-bit pixel art style" },
-  { id: 'vintage', label: "Polaroid Vintage", prompt: "Apply a vintage polaroid filter with faded colors and grain" },
-  { id: 'cinematic', label: "Cinemático", prompt: "Enhance lighting to be dramatic and cinematic, 4k quality" },
-  { id: 'cartoon', label: "Cartoon 3D", prompt: "Transform into a 3D Pixar-style cartoon character or environment" }
+    { id: 'vangogh', label: "Estilo Van Gogh", prompt: "Transforme no estilo de pintura de Van Gogh, com pinceladas grossas e espirais vibrantes." },
+    { id: 'sketch', label: "Esboço a Lápis", prompt: "Converta em um esboço artístico a lápis de alta qualidade, em preto e branco." },
+    { id: 'cyberpunk', label: "Neon Cyberpunk", prompt: "Adicione um brilho neon cyberpunk futurista, iluminação noturna e tons ciano e magenta." },
+    { id: 'winter', label: "Inverno Nevado", prompt: "Transforme o cenário em uma paisagem de inverno com neve." },
+    { id: 'pixel', label: "Arte Pixel", prompt: "Transforme em estilo arte pixel 16-bit." },
+    { id: 'vintage', label: "Polaroid Vintage", prompt: "Aplique um filtro polaroid vintage com cores desbotadas e granulação." },
+    { id: 'cinematic', label: "Cinemático", prompt: "Melhore a iluminação para um visual dramático e cinematográfico, qualidade 4k." },
+    { id: 'cartoon', label: "Cartoon 3D", prompt: "Transforme em um personagem ou ambiente de cartoon 3D estilo Pixar." }
 ];
 
 const MARKETING_OPTIONS = {
   surfaces: [
-    { id: 'marble', label: 'Mármore Branco', value: 'placed on a luxurious white marble table' },
-    { id: 'wood', label: 'Madeira Rústica', value: 'placed on a rustic dark wood surface' },
-    { id: 'podium', label: 'Pódio Minimalista', value: 'on a clean geometric podium, minimalist background' },
-    { id: 'water', label: 'Splash de Água', value: 'surrounded by dynamic water splashes and droplets, refreshing look' },
-    { id: 'nature', label: 'Natureza', value: 'surrounded by green leaves and natural stones, organic environment' },
-    { id: 'infinity', label: 'Fundo Infinito', value: 'floating in an infinite studio background, clean and seamless' }
+        { id: 'marble', label: 'Mármore Branco', value: 'sobre uma mesa de mármore branco luxuosa' },
+        { id: 'wood', label: 'Madeira Rústica', value: 'sobre uma superfície rústica de madeira escura' },
+        { id: 'podium', label: 'Pódio Minimalista', value: 'sobre um pódio geométrico limpo, com fundo minimalista' },
+        { id: 'water', label: 'Splash de Água', value: 'cercado por respingos e gotas de água dinâmicos, visual refrescante' },
+        { id: 'nature', label: 'Natureza', value: 'cercado por folhas verdes e pedras naturais, ambiente orgânico' },
+        { id: 'infinity', label: 'Fundo Infinito', value: 'flutuando em fundo de estúdio infinito, limpo e contínuo' }
   ],
   lighting: [
-    { id: 'soft', label: 'Luz de Estúdio Suave', value: 'softbox studio lighting, diffuse shadows' },
-    { id: 'sunlight', label: 'Luz Solar Natural', value: 'warm natural sunlight casting soft shadows, golden hour' },
-    { id: 'neon', label: 'Luz Neon', value: 'dramatic neon blue and pink lighting, rim light' },
-    { id: 'dramatic', label: 'Dramático', value: 'high contrast dramatic lighting (chiaroscuro), focus on product' }
+        { id: 'soft', label: 'Luz de Estúdio Suave', value: 'iluminação de estúdio com softbox e sombras difusas' },
+        { id: 'sunlight', label: 'Luz Solar Natural', value: 'luz solar natural e quente, com sombras suaves de fim de tarde' },
+        { id: 'neon', label: 'Luz Neon', value: 'iluminação neon azul e rosa dramática, com luz de recorte' },
+        { id: 'dramatic', label: 'Dramático', value: 'iluminação dramática de alto contraste (claro-escuro), foco no produto' }
   ],
   styles: [
-    { id: 'luxury', label: 'Luxo Elegante', value: 'elegant, high-end luxury aesthetic, gold details' },
-    { id: 'tech', label: 'Tech Futurista', value: 'futuristic, sleek, metallic reflections, high-tech vibe' },
-    { id: 'minimal', label: 'Minimalista Clean', value: 'minimalist composition, negative space, modern' },
-    { id: 'vibrant', label: 'Vibrante & Pop', value: 'vibrant saturated colors, pop art style, energetic' }
+        { id: 'luxury', label: 'Luxo Elegante', value: 'estética elegante e luxuosa de alto padrão, com detalhes dourados' },
+        { id: 'tech', label: 'Tech Futurista', value: 'visual futurista, refinado, com reflexos metálicos e atmosfera high-tech' },
+        { id: 'minimal', label: 'Minimalista Clean', value: 'composição minimalista, espaço negativo e visual moderno' },
+        { id: 'vibrant', label: 'Vibrante & Pop', value: 'cores saturadas vibrantes, estilo pop art e energia alta' }
   ]
 };
 
@@ -89,7 +88,7 @@ const MAGIC_TOOLS = [
     id: 'colorize', 
     label: 'Colorir P&B', 
     description: 'Dê vida a fotos antigas.',
-    prompt: 'Colorize this black and white image naturally, realistic skin tones and vibrant colors. Maintain the original details.', 
+    prompt: 'Colorize esta imagem em preto e branco de forma natural, com tons de pele realistas e cores vibrantes. Mantenha os detalhes originais.', 
     icon: PaintBrushIcon,
     color: 'text-pink-500',
     bg: 'bg-pink-50'
@@ -98,7 +97,7 @@ const MAGIC_TOOLS = [
     id: 'restore', 
     label: 'Restaurar', 
     description: 'Melhore nitidez e ruído.',
-    prompt: 'Enhance image quality, remove noise, sharpen details, high resolution, 4k, photorealistic. Do not alter the subject.', 
+    prompt: 'Melhore a qualidade da imagem, remova ruído e aumente a nitidez dos detalhes. Alta resolução, 4k, fotorealista. Não altere o assunto principal.', 
     icon: BoltIcon,
     color: 'text-amber-500',
     bg: 'bg-amber-50'
@@ -116,7 +115,7 @@ const MAGIC_TOOLS = [
     id: 'remove_bg', 
     label: 'Fundo Branco', 
     description: 'Isole em fundo branco.',
-    prompt: 'Remove the background, isolate the subject on a clean white background, professional product shot.', 
+    prompt: 'Remova o fundo e isole o assunto em um fundo branco limpo, como foto profissional de produto.', 
     icon: ScissorsIcon,
     color: 'text-cyan-500',
     bg: 'bg-cyan-50'
@@ -125,7 +124,7 @@ const MAGIC_TOOLS = [
     id: 'lighting', 
     label: 'Corrigir Luz', 
     description: 'Equilibre a exposição.',
-    prompt: 'Fix lighting, balance exposure, improve contrast and brightness naturally, professional photography.', 
+    prompt: 'Corrija a iluminação, equilibre a exposição e melhore contraste e brilho de forma natural, com resultado de fotografia profissional.', 
     icon: SunIcon,
     color: 'text-purple-500',
     bg: 'bg-purple-50'
@@ -250,7 +249,7 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
         <div className="flex flex-col items-center gap-2 w-full h-1/2 md:flex-1 md:h-full justify-center relative">
            <span className="absolute top-2 left-1/2 transform -translate-x-1/2 z-10 bg-cyan-100/90 backdrop-blur text-cyan-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-sm">Pixai AI</span>
            <div className="w-full h-full flex items-center justify-center bg-[url('https://placehold.co/20x20/e2e8f0/ffffff?text=')] bg-repeat rounded-lg overflow-hidden border border-cyan-200">
-             <img src={generated} alt="Generated" className="max-w-full max-h-full object-contain" />
+             <img src={generated} alt="Imagem gerada" className="max-w-full max-h-full object-contain" />
            </div>
         </div>
       </div>
@@ -270,7 +269,7 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
           {/* Generated (After) */}
           <img 
             src={generated} 
-            alt="Generated" 
+            alt="Imagem gerada" 
             className="absolute max-w-full max-h-full object-contain select-none pointer-events-none" 
           />
 
@@ -300,7 +299,17 @@ const ComparisonViewer = ({ original, generated, mode }: { original: string; gen
   );
 };
 
-const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () => void }) => {
+const CopyModal = ({
+    data,
+    onClose,
+    imageUrl,
+    promptContext,
+}: {
+    data: MarketingCopyResult;
+    onClose: () => void;
+    imageUrl?: string;
+    promptContext?: string;
+}) => {
   const [copied, setCopied] = useState<string | null>(null);
 
   const handleCopy = (text: string, key: string) => {
@@ -315,25 +324,146 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
         handleCopy(joined, 'all');
     };
 
+    const triggerDownload = (filename: string, content: string, mimeType: string = 'text/plain;charset=utf-8') => {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleDownloadAssets = () => {
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const copyText = [
+            'PIXAI - TEXTO DE MARKETING',
+            '',
+            `Prompt: ${promptContext || 'N/A'}`,
+            '',
+            '[Curto]',
+            data.short || '',
+            '',
+            '[Engajamento]',
+            data.engagement || '',
+            '',
+            '[Vendas]',
+            data.sales || '',
+            '',
+            `[Paleta] ${data.colorPalette?.join(', ') || 'N/A'}`,
+            `[Emojis] ${data.emojiSuggestions?.join(' ') || 'N/A'}`,
+        ].join('\n');
+
+        triggerDownload(`pixai-marketing-${timestamp}.txt`, copyText);
+        triggerDownload(`pixai-marketing-${timestamp}.json`, JSON.stringify(data, null, 2), 'application/json;charset=utf-8');
+
+        if (imageUrl) {
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = `pixai-imagem-${timestamp}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        setCopied('download-assets');
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    const getShareText = () => [data.short, data.engagement].filter(Boolean).join('\n\n');
+
+    const shareWithFallback = async (key: string, fallbackUrl?: string) => {
+        const shareText = getShareText();
+        const shareData = {
+            title: 'Pixai - Texto de Marketing',
+            text: shareText,
+            url: window.location.href,
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                await navigator.clipboard.writeText(shareText);
+                if (fallbackUrl) {
+                    window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+                }
+            }
+            setCopied(key);
+            setTimeout(() => setCopied(null), 2000);
+        } catch {
+            // usuario pode cancelar o share nativo; nao precisa mostrar erro ruidoso
+        }
+    };
+
+    const handleShareInstagram = async () => {
+        await shareWithFallback('share-instagram', 'https://www.instagram.com/');
+    };
+
+    const handleShareTikTok = async () => {
+        await shareWithFallback('share-tiktok', 'https://www.tiktok.com/upload?lang=pt-BR');
+    };
+
+    const handleShareX = async () => {
+        const text = encodeURIComponent(data.sales || getShareText());
+        const url = `https://twitter.com/intent/tweet?text=${text}`;
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setCopied('share-x');
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    const handlePublishCampaign = () => {
+        const campaignBrief = [
+            '# Campanha Pixai',
+            '',
+            `Data: ${new Date().toLocaleString('pt-BR')}`,
+            `Prompt: ${promptContext || 'N/A'}`,
+            '',
+            '## Objetivo',
+            data.sales || '',
+            '',
+            '## Post de Engajamento',
+            data.engagement || '',
+            '',
+            '## Post Curto',
+            data.short || '',
+        ].join('\n');
+
+        triggerDownload('pixai-campanha.md', campaignBrief, 'text/markdown;charset=utf-8');
+        setCopied('publish-campaign');
+        setTimeout(() => setCopied(null), 2000);
+    };
+
   return (
     <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] flex items-end md:items-center justify-center md:p-4">
       <div className="bg-white rounded-t-3xl md:rounded-2xl w-full max-w-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in slide-in-from-bottom-full md:zoom-in duration-300 flex flex-col max-h-[85vh] md:max-h-[90vh]">
         <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 shrink-0">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
             <SparklesIcon className="w-5 h-5 text-cyan-500" />
-            Marketing Copy
+            Texto de Marketing
           </h3>
           <button onClick={onClose} className="p-1 hover:bg-slate-200 rounded-full text-slate-500 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
         </div>
         <div className="p-6 overflow-y-auto custom-scrollbar">
+            <div className="flex justify-end mb-4">
+                <button
+                    onClick={handleCopyAll}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-bold transition-colors ${copied === 'all' ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-blue-600 text-blue-700'}`}
+                >
+                    <CopyIcon className="w-4 h-4" />
+                    {copied === 'all' ? 'Tudo copiado!' : 'Copiar tudo'}
+                </button>
+            </div>
             {(data.colorPalette?.length > 0 || data.emojiSuggestions?.length > 0) && (
-                <div className="mb-8 bg-slate-50 rounded-xl p-5 border border-slate-200">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4">Identidade Visual</h4>
+                <div className="mb-8 bg-slate-50 rounded-xl p-5 border border-[#c4c8dd]">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-4">Paleta de Cores e Sugestões de Emoji</h4>
                     {data.colorPalette && data.colorPalette.length > 0 && (
                         <div className="mb-4">
-                            <p className="text-xs text-slate-400 mb-2">Paleta</p>
+                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Paleta de Cores</p>
                             <div className="flex gap-3 flex-wrap">
                                 {data.colorPalette.map((color, idx) => (
                                     <div key={idx} className="group relative flex flex-col items-center gap-1 cursor-pointer" onClick={() => handleCopy(color, `color-${idx}`)}>
@@ -350,7 +480,7 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                     )}
                     {data.emojiSuggestions && data.emojiSuggestions.length > 0 && (
                         <div>
-                            <p className="text-xs text-slate-400 mb-2">Emojis</p>
+                            <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Sugestões de Emoji</p>
                             <div className="flex gap-2 flex-wrap">
                                 {data.emojiSuggestions.map((emoji, idx) => (
                                     <button 
@@ -372,7 +502,7 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                     return (
                         <div key={key} className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-semibold uppercase tracking-wider text-cyan-700">
+                                <span className="text-sm font-bold uppercase tracking-wide text-blue-700">
                                     {key === 'short' ? 'Curto' : key === 'engagement' ? 'Engajamento' : 'Vendas'}
                                 </span>
                                 <button 
@@ -383,7 +513,7 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
                                     {copied === key ? 'Copiado!' : 'Copiar'}
                                 </button>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 text-slate-700 text-sm whitespace-pre-wrap leading-relaxed shadow-sm">
+                            <div className="bg-slate-50 p-4 rounded-2xl border border-[#c4c8dd] text-slate-800 text-sm whitespace-pre-wrap leading-relaxed">
                                 {text as string}
                             </div>
                         </div>
@@ -392,18 +522,21 @@ const CopyModal = ({ data, onClose }: { data: MarketingCopyResult; onClose: () =
             </div>
 
             <div className="mt-8 space-y-3">
-                <button
-                    onClick={handleCopyAll}
-                    className={`w-full py-3 rounded-xl border text-base font-bold transition-colors ${copied === 'all' ? 'bg-green-50 border-green-300 text-green-700' : 'bg-white border-blue-600 text-blue-700'}`}
-                >
-                    {copied === 'all' ? 'Copiado!' : 'Copy All'}
+                <button onClick={handleDownloadAssets} className="w-full py-3 rounded-2xl border-2 border-blue-700 text-blue-700 text-lg font-semibold bg-white">
+                    {copied === 'download-assets' ? 'Arquivos baixados!' : 'Baixar todos os arquivos'}
                 </button>
-                <button className="w-full py-3 rounded-xl bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white text-lg font-semibold">
-                    Share to Instagram
+                <button onClick={handleShareInstagram} className="w-full py-3 rounded-2xl bg-gradient-to-r from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white text-lg font-semibold shadow-lg">
+                    {copied === 'share-instagram' ? 'Compartilhado!' : 'Compartilhar no Instagram'}
                 </button>
-                <button className="w-full py-3 rounded-xl bg-black text-white text-lg font-semibold">Share to TikTok</button>
-                <button className="w-full py-3 rounded-xl bg-black text-white text-lg font-semibold">Share to X</button>
-                <button className="w-full py-3 rounded-xl bg-blue-700 text-white text-lg font-semibold">Publish to Campaign</button>
+                <button onClick={handleShareTikTok} className="w-full py-3 rounded-2xl bg-black text-white text-lg font-semibold">
+                    {copied === 'share-tiktok' ? 'Compartilhado!' : 'Compartilhar no TikTok'}
+                </button>
+                <button onClick={handleShareX} className="w-full py-3 rounded-2xl bg-black text-white text-lg font-semibold">
+                    {copied === 'share-x' ? 'Publicado!' : 'Compartilhar no X'}
+                </button>
+                <button onClick={handlePublishCampaign} className="w-full py-3 rounded-2xl bg-blue-700 text-white text-lg font-semibold shadow-lg shadow-blue-700/20">
+                    {copied === 'publish-campaign' ? 'Campanha criada!' : 'Publicar na campanha'}
+                </button>
             </div>
         </div>
       </div>
@@ -670,6 +803,8 @@ function App() {
   // Tool States
   const [isMasking, setIsMasking] = useState(false);
   const [brushSize, setBrushSize] = useState(20);
+    const [guidanceScale, setGuidanceScale] = useState(7.5);
+    const [variationStrength, setVariationStrength] = useState<'subtle' | 'strong'>('subtle');
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 });
 
   // Modals
@@ -775,12 +910,12 @@ function App() {
             fetchGallery(user.uid);
         } else {
              // Guest mode local storage
-             const newImg = { id: Date.now().toString(), url: generatedImage, prompt: prompt, createdAt: new Date() };
+               const newImg = { id: Date.now().toString(), url: generatedImage, prompt: prompt, createdAt: new Date() };
              const newGallery = [newImg, ...gallery];
              setGallery(newGallery);
              localStorage.setItem('pixai_gallery', JSON.stringify(newGallery));
         }
-        alert("Imagem salva na galeria!");
+           alert("Imagem salva na galeria!");
     } catch (e) {
         console.error(e);
         setError("Erro ao salvar na nuvem.");
@@ -809,7 +944,7 @@ function App() {
         };
         img.src = base64;
       } catch (err) {
-        setError("Failed to load image");
+        setError("Falha ao carregar a imagem.");
       }
     }
   };
@@ -843,7 +978,7 @@ function App() {
           setImgDimensions({ width: w, height: h });
           setIsCropModalOpen(false);
       } catch (e) {
-          setError("Failed to crop image");
+          setError("Falha ao recortar a imagem.");
       }
   };
 
@@ -857,18 +992,18 @@ function App() {
           setImgDimensions({ width: w, height: h });
           setIsResizeModalOpen(false);
       } catch (e) {
-          setError("Failed to resize");
+          setError("Falha ao redimensionar a imagem.");
       }
   };
 
   const getFinalPrompt = () => {
       if (activeTab === 'marketing') {
           const parts = [
-              "Professional product photography",
+              "fotografia profissional de produto",
               marketingPrompt.surface ? marketingPrompt.surface : "",
               marketingPrompt.lighting ? marketingPrompt.lighting : "",
               marketingPrompt.style ? marketingPrompt.style : "",
-              "high quality, photorealistic, 4k"
+              "alta qualidade, fotorealista, 4k"
           ].filter(Boolean);
           return parts.join(', ') + (prompt ? `. ${prompt}` : '');
       }
@@ -933,7 +1068,10 @@ function App() {
              }
         }
 
-        const result = await editImage(imageToSend, currentMimeType, finalPrompt, isMasking);
+        const result = await editImage(imageToSend, currentMimeType, finalPrompt, isMasking, {
+            guidanceScale,
+            variationStrength,
+        });
         
         // Updated: result is now the full data URI string, use it directly
         setGeneratedImage(result);
@@ -1142,27 +1280,66 @@ function App() {
     // Editor Tab
     return (
         <div className="space-y-6 pb-20 md:pb-0">
+            <div>
+                <h2 className="text-2xl md:text-lg font-semibold text-slate-900 mb-1">Edição com IA</h2>
+                <p className="text-slate-600 text-sm">Transforme sua imagem usando um prompt de texto.</p>
+            </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">Descreva sua edição</label>
+                <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">Descreva sua edição</label>
                 <textarea 
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
-                    placeholder="Ex: Mude o céu para rosa, adicione fogos de artifício..."
-                    className="w-full h-32 bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 outline-none resize-none shadow-sm"
+                    placeholder="Ex.: adicione um pôr do sol brilhante ao fundo com iluminação cinematográfica..."
+                    className="w-full h-32 bg-white border border-[#c5c9dc] rounded-2xl p-4 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-600 outline-none resize-none shadow-sm"
                 />
             </div>
             <div className="space-y-2">
-                <label className="text-xs font-bold uppercase text-slate-400">Sugestões Rápidas</label>
+                <label className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">Estilos prontos</label>
                 <div className="flex flex-wrap gap-2">
                     {PRESETS.map(preset => (
                         <button
                             key={preset.id}
                             onClick={() => setPrompt(preset.prompt)}
-                            className="px-3 py-1.5 bg-white border border-slate-200 hover:border-cyan-300 hover:bg-cyan-50 text-slate-600 text-xs rounded-lg transition-colors"
+                            className="px-4 py-1.5 bg-[#e8eaee] border border-[#d0d3de] text-slate-800 text-xs rounded-full transition-colors"
                         >
                             {preset.label}
                         </button>
                     ))}
+                </div>
+            </div>
+            <div className="space-y-4 pt-4 border-t border-slate-200">
+                <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-700">Escala de orientação da IA</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold">{guidanceScale.toFixed(1)}</span>
+                </div>
+                <input
+                    type="range"
+                    min={1}
+                    max={15}
+                    step={0.5}
+                    value={guidanceScale}
+                    onChange={(e) => setGuidanceScale(Number(e.target.value))}
+                    className="w-full h-2 rounded-lg accent-blue-600 bg-slate-200"
+                />
+                <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-slate-700">Força da variação</span>
+                    <span className="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-semibold">
+                        {variationStrength === 'subtle' ? 'Baixa' : 'Forte'}
+                    </span>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                    <button
+                        onClick={() => setVariationStrength('subtle')}
+                        className={`py-2.5 rounded-xl border font-semibold transition-colors ${variationStrength === 'subtle' ? 'border-blue-700 text-blue-700 bg-blue-50' : 'border-slate-300 text-slate-600 bg-white'}`}
+                    >
+                        Sutil
+                    </button>
+                    <button
+                        onClick={() => setVariationStrength('strong')}
+                        className={`py-2.5 rounded-xl border font-semibold transition-colors ${variationStrength === 'strong' ? 'border-blue-700 text-blue-700 bg-blue-50' : 'border-slate-300 text-slate-600 bg-white'}`}
+                    >
+                        Forte
+                    </button>
                 </div>
             </div>
         </div>
@@ -1171,10 +1348,11 @@ function App() {
 
   // --- Main Render ---
   
-  return (
-    <div className="flex h-dvh w-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
+    return (
+        <div className="h-dvh w-screen bg-slate-50 text-slate-900 overflow-hidden font-sans">
       <MobileTopBar
         canDownload={Boolean(currentImage || generatedImage)}
+                showManage={activeTab === 'gallery'}
         onMenuOpen={() => setIsMobileMenuOpen(true)}
         onDownload={() => {
           const downloadable = generatedImage || currentImage;
@@ -1183,10 +1361,10 @@ function App() {
       />
 
       {/* Sidebar (Desktop) / Drawer (Mobile) */}
-      <aside className={`
-        fixed md:relative inset-y-0 left-0 z-50 w-80 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 shadow-2xl md:shadow-none
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-      `}>
+            <aside className={`
+                fixed inset-y-0 left-0 z-50 w-[84%] max-w-sm bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 shadow-2xl
+                ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+            `}>
         <div className="p-6 flex items-center justify-between border-b border-slate-100">
            <PixaiLogoFull />
            <button className="md:hidden" onClick={() => setIsMobileMenuOpen(false)}><XMarkIcon className="w-6 h-6 text-slate-400" /></button>
@@ -1225,7 +1403,7 @@ function App() {
               <span className="text-[10px] font-bold uppercase">Editor</span>
             </button>
           </Tooltip>
-          <Tooltip content="Marketing Studio" className="flex-1">
+          <Tooltip content="Estúdio de Marketing" className="flex-1">
             <button 
               onClick={() => setActiveTab('marketing')}
               className={`w-full py-3 rounded-lg flex flex-col items-center gap-1 transition-all ${activeTab === 'marketing' ? 'bg-purple-50 text-purple-600 shadow-inner' : 'text-slate-400 hover:bg-slate-50'}`}
@@ -1294,12 +1472,9 @@ function App() {
       </aside>
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-      
-      <GeminiControls />
-        
+            <div className="h-full w-full pt-16 pb-20 flex flex-col overflow-hidden">
         {/* Top Toolbar */}
-        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0 z-30">
+                <header className="hidden h-16 bg-white border-b border-slate-200 items-center justify-between px-4 md:px-8 shrink-0 z-30">
            <div className="flex items-center gap-2 md:gap-4">
                <button 
                    onClick={() => document.getElementById('file-upload')?.click()}
@@ -1370,7 +1545,7 @@ function App() {
                    className="hidden md:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-500 to-fuchsia-500 hover:from-violet-600 hover:to-fuchsia-600 text-white rounded-lg text-sm font-bold shadow-md shadow-fuchsia-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:grayscale"
                >
                    <MagicWandIcon className="w-4 h-4" />
-                   Marketing Copy
+                   Texto de Marketing
                </button>
 
                <button 
@@ -1401,7 +1576,7 @@ function App() {
         </header>
 
         {/* Canvas Area */}
-        <div className="flex-1 relative bg-[url('https://placehold.co/20x20/f1f5f9/ffffff?text=')] bg-repeat overflow-hidden flex items-center justify-center p-4 md:p-8 group"
+           <div className="flex-1 relative bg-[#f8f9fa] overflow-hidden flex items-start justify-center p-4 group"
              onWheel={handleWheel}
              onMouseMove={handleCanvasMouseMove}
         >
@@ -1423,7 +1598,7 @@ function App() {
                     formatDate={formatGalleryDate}
                 />
             ) : (!currentImage ? (
-                <div className="text-center space-y-4 animate-in fade-in zoom-in duration-500">
+                <div className="text-center space-y-4 animate-in fade-in zoom-in duration-500 mt-8">
                     <div className="w-24 h-24 bg-white rounded-3xl shadow-xl flex items-center justify-center mx-auto mb-6 border border-slate-100">
                         <ImageIcon className="w-10 h-10 text-cyan-500" />
                     </div>
@@ -1455,8 +1630,8 @@ function App() {
                             <img 
                                 ref={imageRef}
                                 src={currentImage} 
-                                alt="Editing" 
-                                className="max-w-full max-h-[80vh] object-contain pointer-events-none select-none"
+                                alt="Imagem em edição" 
+                                className="max-w-full max-h-[42vh] object-contain pointer-events-none select-none rounded-2xl border border-slate-200 shadow-sm"
                                 onLoad={(e) => setImgDimensions({width: e.currentTarget.width, height: e.currentTarget.height})}
                             />
                             {/* Drawing Layer for Masking */}
@@ -1501,24 +1676,36 @@ function App() {
 
             {/* Masking Toolbar */}
             {isMasking && (
-                <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-slate-900/90 backdrop-blur text-white p-3 rounded-2xl shadow-2xl flex items-center gap-4 z-40 animate-in slide-in-from-top-4">
-                    <div className="flex items-center gap-2 px-2">
-                        <BrushIcon className="w-4 h-4" />
+                <div className="absolute bottom-28 left-1/2 -translate-x-1/2 w-[92%] max-w-md bg-white border border-[#bcc2db] p-4 rounded-3xl shadow-2xl z-40 animate-in slide-in-from-bottom-3">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-3xl md:text-lg font-semibold text-slate-900">Apagar objeto</span>
+                        <button onClick={clearMask} className="text-red-700 font-medium hover:text-red-800 transition-colors text-2xl md:text-sm">Limpar máscara</button>
+                    </div>
+                    <div className="flex items-center gap-3 mb-4">
+                        <BrushIcon className="w-5 h-5 text-slate-500" />
                         <input 
                             type="range" 
                             min="5" max="100" 
                             value={brushSize} 
                             onChange={(e) => setBrushSize(Number(e.target.value))}
-                            className="w-24 accent-rose-500 h-1 bg-slate-600 rounded-full appearance-none"
+                            className="flex-1 h-2 accent-blue-600 bg-slate-200 rounded-full appearance-none"
                         />
+                        <span className="text-xl md:text-sm font-bold text-slate-500 w-10 text-right">{brushSize}</span>
                     </div>
-                    <div className="w-px h-6 bg-white/20" />
-                    <button onClick={clearMask} className="p-2 hover:bg-white/10 rounded-lg text-rose-300 hover:text-rose-200 flex items-center gap-2 text-xs font-bold">
-                        <TrashIcon className="w-4 h-4" /> Limpar
-                    </button>
-                    <button onClick={() => handleGenerate()} className="px-4 py-1.5 bg-rose-500 hover:bg-rose-600 rounded-lg text-xs font-bold shadow-lg shadow-rose-500/20">
-                        Aplicar
-                    </button>
+                    <div className="grid grid-cols-3 gap-2">
+                        <button
+                            onClick={() => setIsMasking(false)}
+                            className="col-span-1 py-2.5 rounded-2xl bg-slate-200 text-slate-800 font-medium"
+                        >
+                            Cancelar
+                        </button>
+                        <button
+                            onClick={() => handleGenerate()}
+                            className="col-span-2 py-2.5 rounded-2xl bg-blue-700 text-white font-bold"
+                        >
+                            Aplicar
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -1547,12 +1734,25 @@ function App() {
         </div>
       </div>
 
-      <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      <MobileBottomNav
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          setIsMobileMenuOpen(true);
+        }}
+      />
 
       {/* Modals */}
       <ResizeModal isOpen={isResizeModalOpen} onClose={() => setIsResizeModalOpen(false)} onResize={handleResize} currentWidth={imgDimensions.width} currentHeight={imgDimensions.height} />
       <CropModal isOpen={isCropModalOpen} onClose={() => setIsCropModalOpen(false)} onCrop={handleCrop} imageSrc={currentImage} initialWidth={imgDimensions.width} initialHeight={imgDimensions.height} />
-      {copyResult && <CopyModal data={copyResult} onClose={() => setCopyResult(null)} />}
+                        {copyResult && (
+                            <CopyModal
+                                data={copyResult}
+                                onClose={() => setCopyResult(null)}
+                                imageUrl={generatedImage || currentImage || undefined}
+                                promptContext={getFinalPrompt()}
+                            />
+                        )}
       <AuthDomainErrorModal isOpen={!!authError} onClose={() => setAuthError(null)} domain={authError || ''} />
 
     </div>

@@ -12,3 +12,4 @@
 
 # Misc
 package-lock.json
+.vercel
